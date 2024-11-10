@@ -32,7 +32,6 @@ namespace OpenTK.Wpf
 		private Vortice.DirectComposition.IDCompositionDevice _DcompDevice = null;
 		private Vortice.DirectComposition.IDCompositionTarget _DcompTarget = null;
 		private Vortice.DirectComposition.IDCompositionVisual _DcompVisual = null;
-		//private Vortice.DirectComposition.IDCompositionSurface _DcompSurface = null;
 
 		private Vortice.Direct2D1.ID2D1Factory1 _factory2D = null;
 		private Vortice.Direct2D1.ID2D1Device _device2D = null;
@@ -44,16 +43,18 @@ namespace OpenTK.Wpf
 		private int hostWidth;
 		private int hostHeight;
 
-		public DComp(double ControlWidth, double ControlHeight)
+		public DComp(double ControlWidth, double ControlHeight, IntPtr hWnd)
 		{
+			hwndHost = hWnd;
 			double dpi = DXInterop.GetDpiForSystem() / 96d;
 			currentDpi = new(dpi, dpi);
 			hostWidth = (int)(ControlWidth * currentDpi.DpiScaleX);
 			hostHeight = (int)(ControlHeight * currentDpi.DpiScaleY);
 		}
 
-		public DComp(int PixelWidth, int PixelHeight)
+		public DComp(int PixelWidth, int PixelHeight, IntPtr hWnd)
 		{
+			hwndHost = hWnd;
 			double dpi = DXInterop.GetDpiForSystem() / 96d;
 			currentDpi = new(dpi, dpi);
 			hostWidth = PixelWidth;
@@ -76,10 +77,10 @@ namespace OpenTK.Wpf
 			hostHeight = PixelHeight;
 		}
 
-		public void SetWindow(IntPtr hWnd)
-		{
-			hwndHost = hWnd;
-		}
+		//public void SetWindow(IntPtr hWnd)
+		//{
+		//	hwndHost = hWnd;
+		//}
 
 		public Vortice.Direct3D11.ID3D11Device GetD3D11Device()
 		{
@@ -115,7 +116,6 @@ namespace OpenTK.Wpf
 			adapter.EnumOutputs(0, out _DXGIOutput);
 			adapter.Dispose();
 			_DXGIFactory2 = Vortice.DXGI.DXGI.CreateDXGIFactory2<Vortice.DXGI.IDXGIFactory2>(true);
-			//_DXGIFactory2 = _DXGIDevice1.GetParent<Vortice.DXGI.IDXGIFactory2>();
 			_factory2D = Vortice.Direct2D1.D2D1.D2D1CreateFactory<Vortice.Direct2D1.ID2D1Factory1>(Vortice.Direct2D1.FactoryType.MultiThreaded, Vortice.Direct2D1.DebugLevel.None);
 			_device2D = _factory2D.CreateDevice(_DXGIDevice1);
 			_deviceContext2D = _device2D.CreateDeviceContext(Vortice.Direct2D1.DeviceContextOptions.EnableMultithreadedOptimizations);
@@ -126,6 +126,9 @@ namespace OpenTK.Wpf
 			_DcompVisual.SetContent(_DXGISwapChain1);
 			_DcompVisual.SetOffsetX(0);
 			_DcompVisual.SetOffsetY(0);
+			var hr3 = _DcompDevice.CreateTargetForHwnd(hwndHost, true, out _DcompTarget);
+			_DcompTarget.SetRoot(_DcompVisual);
+
 		}
 
 		public void CreateRenderResources()
@@ -135,22 +138,15 @@ namespace OpenTK.Wpf
 			_t2dSurface = _texture2D.QueryInterface<Vortice.DXGI.IDXGISurface1>();
 			_device.ImmediateContext.ClearState();
 			_device.ImmediateContext.Flush();
-			var hr = _DXGISwapChain1.ResizeBuffers(0, (uint)hostWidth, (uint)hostHeight,Vortice.DXGI.Format.R8G8B8A8_UNorm,swapChainFlags: Vortice.DXGI.SwapChainFlags.AllowTearing);
-			
+			var hr = _DXGISwapChain1.ResizeBuffers(0, (uint)hostWidth, (uint)hostHeight,Vortice.DXGI.Format.R8G8B8A8_UNorm,swapChainFlags: Vortice.DXGI.SwapChainFlags.AllowTearing);		
 			_DXGISwapChainSurface = _DXGISwapChain1.GetBuffer<Vortice.DXGI.IDXGISurface1>(0);
 			_D2D1RenderTarget = _factory2D.CreateDxgiSurfaceRenderTarget(_DXGISwapChainSurface, new() { DpiX = (float)(currentDpi.DpiScaleX * 96d), DpiY = (float)(currentDpi.DpiScaleY * 96d), PixelFormat = new(Vortice.DXGI.Format.R8G8B8A8_UNorm, Vortice.DCommon.AlphaMode.Premultiplied), Type = Vortice.Direct2D1.RenderTargetType.Hardware, Usage = Vortice.Direct2D1.RenderTargetUsage.None, MinLevel = Vortice.Direct2D1.FeatureLevel.Level_10 });
-			var hr3 = _DcompDevice.CreateTargetForHwnd(hwndHost, true, out _DcompTarget);
-
 			_t2dBitmap = _D2D1RenderTarget.CreateSharedBitmap(_t2dSurface, new(new(Vortice.DXGI.Format.R8G8B8A8_UNorm, Vortice.DCommon.AlphaMode.Premultiplied), (float)(currentDpi.DpiScaleX * 96d), (float)(currentDpi.DpiScaleY * 96d)));
-			_DcompTarget.SetRoot(_DcompVisual);
 			_DcompDevice.Commit();
-
 		}
 
 		public void DestoryRenderResources()
 		{
-			_DcompTarget?.Dispose();
-			_DcompTarget = null;
 			_D2D1RenderTarget?.Dispose();
 			_D2D1RenderTarget = null;
 			_DXGISwapChainSurface?.Dispose();
@@ -167,6 +163,8 @@ namespace OpenTK.Wpf
 
 		public void DestoryDirect3D()
 		{
+			_DcompTarget?.Dispose();
+			_DcompTarget = null;
 			_DcompVisual?.Dispose();
 			_DcompVisual = null;
 			_DcompTarget?.Dispose();
@@ -191,10 +189,8 @@ namespace OpenTK.Wpf
 		{
 			_D2D1RenderTarget.BeginDraw();
 			_D2D1RenderTarget.Transform = System.Numerics.Matrix3x2.CreateScale(1, -1, new(0f, (float)(hostHeight / 2f / currentDpi.DpiScaleY)));
-			//rt.SetDpi((float)(currentDpi.DpiScaleX * 96d), (float)(currentDpi.DpiScaleY * 96d));
 			_D2D1RenderTarget.DrawBitmap(_t2dBitmap);
 			_D2D1RenderTarget.Transform = System.Numerics.Matrix3x2.Identity;
-			//var brush = rt.CreateSolidColorBrush(new Vortice.Mathematics.Color(255, 255, 255, 255));
 			var queue = DWriteCore.GetCommands(this);
 			float height = (float)(hostHeight / currentDpi.DpiScaleY);
 			foreach (var item in queue)
@@ -204,16 +200,10 @@ namespace OpenTK.Wpf
 			queue.Clear();
 			_D2D1RenderTarget.EndDraw();
 			_DXGISwapChain1.Present(0, Vortice.DXGI.PresentFlags.AllowTearing);
-			//rt.Dispose();
-			//_t2dBitmap.Dispose();
-
-			//brush.Dispose();
-			//_DcompDevice.Commit();
 		}
 
 		public void WaitForVBlank()
 		{
-			//_DcompDevice.WaitForCommitCompletion();
 			_DXGIOutput.WaitForVBlank();
 		}
 	}

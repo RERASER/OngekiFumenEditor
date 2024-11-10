@@ -40,7 +40,7 @@ namespace OpenTK.Wpf
 		private readonly static DebugProc DebugProcCallback = Window_DebugProc;
 #endif
 
-		public DxGlContext(GLWpfControlSettings settings)
+		public DxGlContext(GLWpfControlSettings settings,IntPtr dxhwnd)
 		{
 			// if the graphics context is null, we use the shared context.
 			if (settings.ContextToUse != null)
@@ -137,7 +137,7 @@ namespace OpenTK.Wpf
 			//    ref deviceParameters,
 			//    IntPtr.Zero,
 			//    out DXInterop.IDirect3DDevice9Ex dxDevice);
-			dComp = new(1, 1);
+			dComp = new(1, 1,dxhwnd);
 			dComp.InitDirect3D(false);
 			var device = dComp.GetD3D11Device();
 

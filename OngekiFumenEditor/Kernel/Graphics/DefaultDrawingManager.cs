@@ -92,7 +92,7 @@ namespace OngekiFumenEditor.Kernel.Graphics
             if (type == DebugType.DebugTypeError)
             {
 				System.Diagnostics.Debugger.Break();
-            }
+			}
         }
 
 		public Task WaitForGraphicsInitializationDone(CancellationToken cancellation)

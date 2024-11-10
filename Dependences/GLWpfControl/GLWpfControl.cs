@@ -128,13 +128,13 @@ namespace OpenTK.Wpf
         /// <summary>
         /// Starts the control and rendering, using the settings provided via the <see cref="Settings"/> property.
         /// </summary>
-        public void Start()
-        {
-            // Start with default settings if none were provided.
-            Settings ??= new GLWpfControlSettings();
+        //public void Start()
+        //{
+        //    // Start with default settings if none were provided.
+        //    Settings ??= new GLWpfControlSettings();
 
-            Start(Settings);
-        }
+        //    Start(Settings);
+        //}
 
         /// <summary>
         /// Starts the control and rendering, using the settings provided.
@@ -145,7 +145,7 @@ namespace OpenTK.Wpf
         /// <exception cref="InvalidOperationException">
         /// The <see cref="Start"/> function must only be called once for a given <see cref="GLWpfControl"/>.
         /// </exception>
-        public void Start(GLWpfControlSettings settings)
+        public void Start(GLWpfControlSettings settings,IntPtr dxhwnd)
         {
             if (_isStarted) {
                 throw new InvalidOperationException($"{nameof(Start)} must only be called once for a given {nameof(GLWpfControl)}");
@@ -154,7 +154,7 @@ namespace OpenTK.Wpf
             _isStarted = true;
 
             Settings = settings.Clone();
-            _renderer = new GLWpfControlRenderer(Settings);
+            _renderer = new GLWpfControlRenderer(Settings,dxhwnd);
             _renderer.GLRender += timeDelta => Render?.Invoke(timeDelta);
             _renderer.GLAsyncRender += () => AsyncRender?.Invoke();
             //IsVisibleChanged += (_, args) => {
@@ -209,16 +209,17 @@ namespace OpenTK.Wpf
             //if (RenderContinuously) InvalidateVisual();
         }
 
-        public void OnRender(bool isDesignMode,double ControlWidth,double ControlHeight,IntPtr hWnd)
+        public void OnRender(bool isDesignMode,double ControlWidth,double ControlHeight)
         {
             //base.OnRender(drawingContext);
             if (isDesignMode) {
                 //DrawDesignTimeHelper(this, drawingContext);
             }
-            else if (_renderer != null)
+			else if (_renderer != null)
             {
                 if (Settings != null)
                 {
+                    
                     //double dpiScaleX = 1.0;
                     //double dpiScaleY = 1.0;
 
@@ -235,7 +236,7 @@ namespace OpenTK.Wpf
                     //        dpiScaleY = transformToDevice.M22;
                     //    }
                     //}
-                    
+
                     //Format format = Settings.TransparentBackground ? Format.A8R8G8B8 : Format.X8R8G8B8;
 
                     //MultisampleType msaaType = MultisampleType.D3DMULTISAMPLE_NONE;
@@ -245,7 +246,7 @@ namespace OpenTK.Wpf
                     //else if (Settings.Samples > 16)
                     //    msaaType = MultisampleType.D3DMULTISAMPLE_16_SAMPLES;
 
-                    _renderer.ReallocateFramebufferIfNeeded(ControlWidth, ControlHeight,hWnd);
+                    _renderer.ReallocateFramebufferIfNeeded(ControlWidth, ControlHeight);
                 }
 
                 _renderer.Render();
