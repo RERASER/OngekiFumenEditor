@@ -56,7 +56,7 @@ namespace OngekiFumenEditor.Kernel.Graphics
 					GL.Enable(EnableCap.DebugOutputSynchronous);
 			//}
 
-			GL.ClearColor(System.Drawing.Color.Black);
+			GL.ClearColor(0,0,0,1);
 			GL.Enable(EnableCap.Blend);
 			GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
@@ -74,14 +74,14 @@ namespace OngekiFumenEditor.Kernel.Graphics
 
 			if (Properties.ProgramSetting.Default.GraphicsCompatability)
 			{
-				var extNames = string.Join(", ", Enumerable.Range(0, GL.GetInteger(GetPName.NumExtensions)).Select(i => GL.GetString(StringNameIndexed.Extensions, i)));
+				var extNames = string.Join(", ", Enumerable.Range(0, GL.GetInteger(GetPName.NumExtensions)).Select(i => GL.GetStringi(StringName.Extensions, (uint)i)));
 				Log.LogDebug($"(maybe support) OpenGL extensions: {extNames}");
 			}
 
 			initTaskSource.SetResult();
 		}
 
-		private static void OnOpenGLDebugLog(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
+		private static void OnOpenGLDebugLog(DebugSource source, DebugType type, uint id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
 		{
 			if (id == 131185)
 				return;

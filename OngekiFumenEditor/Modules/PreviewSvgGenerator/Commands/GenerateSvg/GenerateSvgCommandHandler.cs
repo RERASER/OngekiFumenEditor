@@ -1,7 +1,6 @@
 ﻿using Caliburn.Micro;
 using Gemini.Framework.Commands;
 using Gemini.Framework.Threading;
-using Mono.Cecil;
 using OngekiFumenEditor.Modules.FumenVisualEditor.Kernel;
 using OngekiFumenEditor.Modules.FumenVisualEditor.ViewModels;
 using OngekiFumenEditor.Modules.PreviewSvgGenerator.Commands.GenerateSvg;

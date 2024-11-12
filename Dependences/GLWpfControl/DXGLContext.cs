@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Graphics.Wgl;
 using OpenTK.Windowing.Common;
@@ -37,7 +38,7 @@ namespace OpenTK.Wpf
 		private static IGraphicsContext? SharedGraphicsContext;
 
 #if DEBUG
-		private readonly static DebugProc DebugProcCallback = Window_DebugProc;
+		private readonly static GLDebugProc DebugProcCallback = Window_DebugProc;
 #endif
 
 		public DxGlContext(GLWpfControlSettings settings,IntPtr dxhwnd)
@@ -70,14 +71,14 @@ namespace OpenTK.Wpf
 					GraphicsContext.MakeCurrent();
 
 					IBindingsContext provider = settings.BindingsContext ?? new GLFWBindingsContext();
-					Wgl.LoadBindings(provider);
+					GLLoader.LoadBindings(provider);
 
 					bool hasNVDXInterop = false;
 					unsafe
 					{
 						IntPtr hwnd = GLFW.GetWin32Window(GlfwWindow.WindowPtr);
 						IntPtr hdc = DXInterop.GetDC(hwnd);
-						string exts = Wgl.Arb.GetExtensionsString(hdc);
+						string exts = Wgl.ARB.GetExtensionsStringARB(hdc);
 						DXInterop.ReleaseDC(hwnd, hdc);
 
 						foreach (string ext in exts.Split(' '))
@@ -141,7 +142,7 @@ namespace OpenTK.Wpf
 			dComp.InitDirect3D(false);
 			var device = dComp.GetD3D11Device();
 
-			GLDeviceHandle = Wgl.DXOpenDeviceNV(device.NativePointer);
+			GLDeviceHandle = Wgl.NV.DXOpenDeviceNV(device.NativePointer);
 			if (GLDeviceHandle == IntPtr.Zero)
 			{
 				throw new Win32Exception(DXInterop.GetLastError());
@@ -155,7 +156,7 @@ namespace OpenTK.Wpf
 
 		public void Dispose()
 		{
-			if (Wgl.DXCloseDeviceNV(GLDeviceHandle) == false)
+			if (Wgl.NV.DXCloseDeviceNV(GLDeviceHandle) == false)
 			{
 				throw new Win32Exception(DXInterop.GetLastError());
 			}
@@ -167,7 +168,7 @@ namespace OpenTK.Wpf
 		}
 
 #if DEBUG
-		private static void Window_DebugProc(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr messagePtr, IntPtr userParam)
+		private static void Window_DebugProc(DebugSource source, DebugType type, uint id, DebugSeverity severity, int length, IntPtr messagePtr, IntPtr userParam)
 		{
 			string message = Marshal.PtrToStringAnsi(messagePtr, length);
 

@@ -41,7 +41,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.CircleDra
 			{
 				GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
 				{
-					GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(VertexSize * MAX_DRAW_COUNT), IntPtr.Zero, BufferUsageHint.DynamicDraw);
+					GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(VertexSize * MAX_DRAW_COUNT), IntPtr.Zero, BufferUsage.DynamicDraw);
 
 					//setup vertex struct
 

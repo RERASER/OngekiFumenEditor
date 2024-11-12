@@ -64,7 +64,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 					GL.CompileShader(shader);
 					if (!GL.IsShader(shader))
 						throw new Exception($"{shaderType} compile failed.");
-					msg = GL.GetShaderInfoLog(shader);
+					GL.GetShaderInfoLog(shader, out msg);
 					if (!string.IsNullOrEmpty(msg))
 						Log.LogDebug($"[{shaderType}]:{msg}");
 
@@ -83,14 +83,14 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 
 				GL.LinkProgram(program);
 
-				var buildShaderError = GL.GetProgramInfoLog(program);
+				GL.GetProgramInfoLog(program, out var buildShaderError);
 				if (!string.IsNullOrEmpty(buildShaderError))
 					Log.LogError(buildShaderError);
 
-				GL.GetProgram(program, GetProgramParameterName.ActiveUniforms, out var total);
+				GL.GetProgrami(program, ProgramProperty.ActiveUniforms, out var total);
 
 				for (int i = 0; i < total; i++)
-					GL.GetActiveUniform(program, i, 16, out _, out _, out _, out var _);
+					GL.GetActiveUniform(program, (uint)i, 16, out _, out _, out _, out var _);
 
 				compiled = true;
 			}
@@ -117,17 +117,17 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 				return;
 			}
 
-			GL.BindTexture(TextureTarget.Texture2D, tex.ID);
+			GL.BindTexture(TextureTarget.Texture2d, tex.ID);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void PassNullTexUniform(string name)
 		{
-			GL.BindTexture(TextureTarget.Texture2D, 0);
+			GL.BindTexture(TextureTarget.Texture2d, 0);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void PassUniform(int l, float v) => GL.Uniform1(l, v);
+		public void PassUniform(int l, float v) => GL.Uniform1f(l, v);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void PassUniform(string name, float val)
 		{
@@ -136,7 +136,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void PassUniform(int l, int v) => GL.Uniform1(l, v);
+		public void PassUniform(int l, int v) => GL.Uniform1f(l, v);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void PassUniform(string name, int val)
 		{
@@ -145,7 +145,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void PassUniform(int l, Vector2 v) => GL.Uniform2(l, v);
+		public void PassUniform(int l, Vector2 v) => GL.Uniform2f(l, 1, ref v);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void PassUniform(string name, Vector2 val)
 		{
@@ -154,7 +154,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void PassUniform(int l, Vector4 v) => GL.Uniform4(l, v);
+		public void PassUniform(int l, Vector4 v) => GL.Uniform4f(l, 1, ref v);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void PassUniform(string name, Vector4 val)
 		{
@@ -173,7 +173,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void PassUniform(int l, Matrix4 v) => GL.UniformMatrix4(l, false, ref v);
+		public void PassUniform(int l, Matrix4 v) => GL.UniformMatrix4f(l, 1, false, ref v);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void PassUniform(string name, Matrix4 matrix4)
 		{

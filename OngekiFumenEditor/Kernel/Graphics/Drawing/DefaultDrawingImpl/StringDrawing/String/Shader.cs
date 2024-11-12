@@ -1,5 +1,5 @@
 using OngekiFumenEditor.Utils;
-using OpenTK.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System;
 using System.Numerics;
@@ -24,10 +24,11 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.StringDra
 			GLUtility.CheckError();
 
 			GL.LinkProgram(_handle);
-			GL.GetProgram(_handle, GetProgramParameterName.LinkStatus, out var status);
+			GL.GetProgrami(_handle, ProgramProperty.LinkStatus, out var status);
+			GL.GetProgramInfoLog(_handle, out var infoLog);
 			if (status == 0)
 			{
-				throw new Exception($"Program failed to link with error: {GL.GetProgramInfoLog(_handle)}");
+				throw new Exception($"Program failed to link with error: {infoLog}");
 			}
 
 			GL.DetachShader(_handle, vertex);
@@ -50,7 +51,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.StringDra
 			{
 				throw new Exception($"{name} uniform not found on shader.");
 			}
-			GL.Uniform1(location, value);
+			GL.Uniform1i(location, value);
 			GLUtility.CheckError();
 		}
 
@@ -61,11 +62,11 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.StringDra
 			{
 				throw new Exception($"{name} uniform not found on shader.");
 			}
-			GL.Uniform1(location, value);
+			GL.Uniform1f(location, value);
 			GLUtility.CheckError();
 		}
 
-		public unsafe void SetUniform(string name, Matrix4x4 value)
+		public void SetUniform(string name, Matrix4x4 value)
 		{
 			int location = GL.GetUniformLocation(_handle, name);
 			if (location == -1)
@@ -73,7 +74,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.StringDra
 				throw new Exception($"{name} uniform not found on shader.");
 			}
 
-			GL.UniformMatrix4(location, 1, false, (float*)&value);
+			GL.UniformMatrix4f(location, 1, false, ref value);
 			GLUtility.CheckError();
 		}
 
@@ -84,7 +85,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.StringDra
 			{
 				throw new Exception($"{name} uniform not found on shader.");
 			}
-			GL.UniformMatrix4(location, false, ref value);
+			GL.UniformMatrix4f(location, 1, false, ref value);
 			GLUtility.CheckError();
 		}
 
@@ -102,7 +103,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.StringDra
 			GLUtility.CheckError();
 
 			GL.CompileShader(handle);
-			string infoLog = GL.GetShaderInfoLog(handle);
+			GL.GetShaderInfoLog(handle, out var infoLog);
 			if (!string.IsNullOrWhiteSpace(infoLog))
 			{
 				throw new Exception($"Error compiling shader of type {type}, failed with error {infoLog}");

@@ -112,7 +112,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.LineDrawi
 				line_vbo = GL.GenBuffer();
 				GL.BindBuffer(BufferTarget.ArrayBuffer, line_vbo);
 				{
-					GL.NamedBufferStorage(line_vbo, PostData.Length * sizeof(float), IntPtr.Zero, BufferStorageFlags.DynamicStorageBit);
+					GL.NamedBufferStorage(line_vbo, PostData.Length * sizeof(float), IntPtr.Zero, BufferStorageMask.DynamicStorageBit);
 					SwitchVertexVBO(line_vbo);
 				}
 				GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -132,19 +132,19 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.LineDrawi
 				quad_ebo = GL.GenBuffer();
 				GL.BindBuffer(BufferTarget.ArrayBuffer, quad_vbo);
 				{
-					GL.NamedBufferStorage(quad_vbo, quad.Length * sizeof(float), quad, BufferStorageFlags.DynamicStorageBit);
+					GL.NamedBufferStorage(quad_vbo, quad.Length * sizeof(float), quad, BufferStorageMask.DynamicStorageBit);
 				}
 				GL.BindBuffer(BufferTarget.ArrayBuffer, quad_ebo);
 				{
-					GL.NamedBufferStorage(quad_ebo, ind.Length * sizeof(ushort), ind, BufferStorageFlags.DynamicStorageBit);
+					GL.NamedBufferStorage(quad_ebo, ind.Length * sizeof(ushort), ind, BufferStorageMask.DynamicStorageBit);
 				}
 				GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-				GL.VertexArrayVertexBuffer(vao, binding_idx, quad_vbo, IntPtr.Zero, 3 * sizeof(float));
+				GL.VertexArrayVertexBuffer(vao, (uint)binding_idx, quad_vbo, IntPtr.Zero, 3 * sizeof(float));
 				GL.VertexArrayElementBuffer(vao, quad_ebo);
 
-				GL.EnableVertexArrayAttrib(vao, quad_pos);
-				GL.VertexArrayAttribFormat(vao, quad_pos, 3, VertexAttribType.Float, false, 0);
-				GL.VertexArrayAttribBinding(vao, quad_pos, binding_idx);
+				GL.EnableVertexArrayAttrib(vao, (uint)quad_pos);
+				GL.VertexArrayAttribFormat(vao, (uint)quad_pos, 3, VertexAttribType.Float, false, 0);
+				GL.VertexArrayAttribBinding(vao, (uint)quad_pos, (uint)binding_idx);
 			}
 			GL.BindVertexArray(0);
 
@@ -283,29 +283,29 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.LineDrawi
 			GL.VertexArrayVertexBuffer(vao, 0, vbo, IntPtr.Zero, VertexTBytesSize);
 			GL.VertexArrayBindingDivisor(vao, 0, 1);
 
-			GL.EnableVertexArrayAttrib(vao, line_pos_width_a);
-			GL.VertexArrayAttribFormat(vao, line_pos_width_a, 4, VertexAttribType.Float, false, 0);
-			GL.VertexArrayAttribBinding(vao, line_pos_width_a, 0);
+			GL.EnableVertexArrayAttrib(vao, (uint)line_pos_width_a);
+			GL.VertexArrayAttribFormat(vao, (uint)line_pos_width_a, 4, VertexAttribType.Float, false, 0);
+			GL.VertexArrayAttribBinding(vao, (uint)line_pos_width_a, 0);
 
-			GL.EnableVertexArrayAttrib(vao, line_col_a);
-			GL.VertexArrayAttribFormat(vao, line_col_a, 4, VertexAttribType.Float, false, 4 * sizeof(float));
-			GL.VertexArrayAttribBinding(vao, line_col_a, 0);
+			GL.EnableVertexArrayAttrib(vao, (uint)line_col_a);
+			GL.VertexArrayAttribFormat(vao, (uint)line_col_a, 4, VertexAttribType.Float, false, 4 * sizeof(float));
+			GL.VertexArrayAttribBinding(vao, (uint)line_col_a, 0);
 
-			GL.EnableVertexArrayAttrib(vao, line_pos_width_b);
-			GL.VertexArrayAttribFormat(vao, line_pos_width_b, 4, VertexAttribType.Float, false, VertexTBytesSize);
-			GL.VertexArrayAttribBinding(vao, line_pos_width_b, 0);
+			GL.EnableVertexArrayAttrib(vao, (uint)line_pos_width_b);
+			GL.VertexArrayAttribFormat(vao, (uint)line_pos_width_b, 4, VertexAttribType.Float, false, VertexTBytesSize);
+			GL.VertexArrayAttribBinding(vao, (uint)line_pos_width_b, 0);
 
-			GL.EnableVertexArrayAttrib(vao, line_col_b);
-			GL.VertexArrayAttribFormat(vao, line_col_b, 4, VertexAttribType.Float, false, VertexTBytesSize + 4 * sizeof(float));
-			GL.VertexArrayAttribBinding(vao, line_col_b, 0);
+			GL.EnableVertexArrayAttrib(vao, (uint)line_col_b);
+			GL.VertexArrayAttribFormat(vao, (uint)line_col_b, 4, VertexAttribType.Float, false, VertexTBytesSize + 4 * sizeof(float));
+			GL.VertexArrayAttribBinding(vao, (uint)line_col_b, 0);
 
-			GL.EnableVertexArrayAttrib(vao, dashSize);
-			GL.VertexArrayAttribFormat(vao, dashSize, 1, VertexAttribType.Float, false, 8 * sizeof(float));
-			GL.VertexArrayAttribBinding(vao, dashSize, 0);
+			GL.EnableVertexArrayAttrib(vao, (uint)dashSize);
+			GL.VertexArrayAttribFormat(vao, (uint)dashSize, 1, VertexAttribType.Float, false, 8 * sizeof(float));
+			GL.VertexArrayAttribBinding(vao, (uint)dashSize, 0);
 
-			GL.EnableVertexArrayAttrib(vao, gapSize);
-			GL.VertexArrayAttribFormat(vao, gapSize, 1, VertexAttribType.Float, false, 9 * sizeof(float));
-			GL.VertexArrayAttribBinding(vao, gapSize, 0);
+			GL.EnableVertexArrayAttrib(vao, (uint)gapSize);
+			GL.VertexArrayAttribFormat(vao, (uint)gapSize, 1, VertexAttribType.Float, false, 9 * sizeof(float));
+			GL.VertexArrayAttribBinding(vao, (uint)gapSize, 0);
 		}
 
 		public IVBOHandle GenerateVBOWithPresetPoints(IEnumerable<LineVertex> vertices, float lineWidth)
@@ -340,7 +340,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.LineDrawi
 
 				handle.verticsCount = list.Count;
 
-				GL.NamedBufferData(vbo, i * sizeof(float), buffer, BufferUsageHint.StaticDraw);
+				GL.NamedBufferData(vbo, i * sizeof(float), buffer, VertexBufferObjectUsage.StaticDraw);
 				ArrayPool<float>.Shared.Return(buffer);
 			}
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);

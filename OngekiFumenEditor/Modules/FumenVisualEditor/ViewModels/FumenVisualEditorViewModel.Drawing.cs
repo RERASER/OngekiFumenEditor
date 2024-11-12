@@ -11,7 +11,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Caliburn.Micro;
-using ControlzEx.Standard;
 using Gemini.Framework;
 using OngekiFumenEditor.Base;
 using OngekiFumenEditor.Base.OngekiObjects;

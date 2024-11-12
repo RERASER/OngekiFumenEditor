@@ -41,7 +41,7 @@ namespace OngekiFumenEditor.Modules.FumenVisualEditor.Graphics.Drawing.TargetImp
 							 0,1
 					};
 					GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(sizeof(float) * _cacheBaseTexPos.Length),
-						_cacheBaseTexPos, BufferUsageHint.StaticDraw);
+						_cacheBaseTexPos, BufferUsage.StaticDraw);
 
 					GL.EnableVertexAttribArray(0);
 					GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, sizeof(float) * 2, 0);
@@ -58,7 +58,7 @@ namespace OngekiFumenEditor.Modules.FumenVisualEditor.Graphics.Drawing.TargetImp
 							-0.5f , -0.5f ,
 					};
 					GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(sizeof(float) * cacheBaseVertex.Length),
-						cacheBaseVertex, BufferUsageHint.StaticDraw);
+						cacheBaseVertex, BufferUsage.StaticDraw);
 
 					GL.EnableVertexAttribArray(1);
 					GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, sizeof(float) * 2, 0);

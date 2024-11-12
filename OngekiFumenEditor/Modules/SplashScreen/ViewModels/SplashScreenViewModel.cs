@@ -4,6 +4,7 @@ using Gemini.Framework.Commands;
 using Gemini.Framework.Languages;
 using Gemini.Framework.Services;
 using Gemini.Modules.Shell.Commands;
+using MahApps.Metro.Controls;
 using OngekiFumenEditor.Kernel.MiscMenu.Commands.OpenUrlCommon;
 using OngekiFumenEditor.Kernel.RecentFiles;
 using OngekiFumenEditor.Kernel.RecentFiles.Commands;

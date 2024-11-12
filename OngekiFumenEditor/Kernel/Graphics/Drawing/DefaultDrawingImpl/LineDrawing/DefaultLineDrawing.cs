@@ -103,7 +103,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.LineDrawi
 			}
 
 			GL.InvalidateBufferData(vbo);
-			GL.NamedBufferData(vbo, new IntPtr(sizeof(float) * arrBufferIdx2 * 6), arrBuffer2, BufferUsageHint.DynamicDraw);
+			GL.NamedBufferData(vbo, new IntPtr(sizeof(float) * arrBufferIdx2 * 6), arrBuffer2, VertexBufferObjectUsage.DynamicDraw);
 
 			ArrayPool<float>.Shared.Return(arrBuffer2);
 

@@ -21,12 +21,13 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 		{
 			get
 			{
-				GL.GetTextureParameter(ID, GetTextureParameter.TextureWrapS, out int m);
+				int m = 0;
+				GL.GetTextureParameteri(ID, GetTextureParameter.TextureWrapS, ref m);
 				return (TextureWrapMode)m;
 			}
 			set
 			{
-				GL.TextureParameter(ID, TextureParameterName.TextureWrapS, (int)value);
+				GL.TextureParameteri(ID, TextureParameterName.TextureWrapS, (int)value);
 			}
 		}
 
@@ -34,12 +35,13 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 		{
 			get
 			{
-				GL.GetTextureParameter(ID, GetTextureParameter.TextureWrapT, out int m);
+				int m = 0;
+				GL.GetTextureParameteri(ID, GetTextureParameter.TextureWrapT, ref m);
 				return (TextureWrapMode)m;
 			}
 			set
 			{
-				GL.TextureParameter(ID, TextureParameterName.TextureWrapT, (int)value);
+				GL.TextureParameteri(ID, TextureParameterName.TextureWrapT, (int)value);
 			}
 		}
 
@@ -47,12 +49,13 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 		{
 			get
 			{
-				GL.GetTextureParameter(ID, GetTextureParameter.TextureMinFilter, out int m);
+				int m = 0;
+				GL.GetTextureParameteri(ID, GetTextureParameter.TextureMinFilter, ref m);
 				return (TextureMinFilter)m;
 			}
 			set
 			{
-				GL.TextureParameter(ID, TextureParameterName.TextureMinFilter, (int)value);
+				GL.TextureParameteri(ID, TextureParameterName.TextureMinFilter, (int)value);
 			}
 		}
 
@@ -60,12 +63,13 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 		{
 			get
 			{
-				GL.GetTextureParameter(ID, GetTextureParameter.TextureMagFilter, out int m);
+				int m = 0;
+				GL.GetTextureParameteri(ID, GetTextureParameter.TextureMagFilter, ref m);
 				return (TextureMagFilter)m;
 			}
 			set
 			{
-				GL.TextureParameter(ID, TextureParameterName.TextureMagFilter, (int)value);
+				GL.TextureParameteri(ID, TextureParameterName.TextureMagFilter, (int)value);
 			}
 		}
 
@@ -76,10 +80,11 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 
 		public Texture(Bitmap bmp, string name = "Texture") : this(name)
 		{
-			GL.GenTextures(1, out int id);
+			int id = 0;
+			GL.GenTextures(1, ref id);
 			_id = id;
 
-			GL.BindTexture(TextureTarget.Texture2D, ID);
+			GL.BindTexture(TextureTarget.Texture2d, ID);
 
 			TextureMinFilter = TextureMinFilter.Linear;
 			TextureMagFilter = TextureMagFilter.Linear;
@@ -90,7 +95,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Base
 
 			var bmp_data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-			GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, bmp_data.Width, bmp_data.Height, 0,
+			GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba, bmp_data.Width, bmp_data.Height, 0,
 				OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, bmp_data.Scan0);
 
 			bmp.UnlockBits(bmp_data);

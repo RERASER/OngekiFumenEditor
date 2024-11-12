@@ -67,7 +67,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.TextureDr
 				{
 					//绑定基本顶点
 					GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(sizeof(float) * cacheBaseTexPos.Length),
-						cacheBaseTexPos, BufferUsageHint.StaticDraw);
+						cacheBaseTexPos, BufferUsage.StaticDraw);
 
 					GL.EnableVertexAttribArray(0);
 					GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, sizeof(float) * 2, 0);
@@ -79,7 +79,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.TextureDr
 				{
 					//绑定基本顶点
 					GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(sizeof(float) * cacheBaseVertex.Length),
-						cacheBaseVertex, BufferUsageHint.StaticDraw);
+						cacheBaseVertex, BufferUsage.StaticDraw);
 
 					GL.EnableVertexAttribArray(1);
 					GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, sizeof(float) * 2, 0);
@@ -96,7 +96,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.TextureDr
 			{
 				GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
 				{
-					GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(VertexSize * MAX_DRAW_COUNT), IntPtr.Zero, BufferUsageHint.DynamicDraw);
+					GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(VertexSize * MAX_DRAW_COUNT), IntPtr.Zero, BufferUsage.DynamicDraw);
 
 					//ModelMatrix
 					GL.EnableVertexAttribArray(2);

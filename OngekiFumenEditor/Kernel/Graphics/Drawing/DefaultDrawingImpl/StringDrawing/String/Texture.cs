@@ -1,5 +1,5 @@
 using OngekiFumenEditor.Utils;
-using OpenTK.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Drawing;
 
@@ -22,7 +22,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.StringDra
 			Bind();
 
 			//Reserve enough memory from the gpu for the whole image
-			GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+			GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
 			GLUtility.CheckError();
 
 			SetParameters();
@@ -31,20 +31,20 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.StringDra
 		private void SetParameters()
 		{
 			//Setting some texture perameters so the texture behaves as expected.
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+			GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
 			GLUtility.CheckError();
 
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+			GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 			GLUtility.CheckError();
 
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+			GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
 			GLUtility.CheckError();
 
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
+			GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
 			GLUtility.CheckError();
 
 			//Generating mipmaps.
-			GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+			GL.GenerateMipmap(TextureTarget.Texture2d);
 			GLUtility.CheckError();
 		}
 
@@ -54,7 +54,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.StringDra
 			GL.ActiveTexture(textureSlot);
 			GLUtility.CheckError();
 
-			GL.BindTexture(TextureTarget.Texture2D, _handle);
+			GL.BindTexture(TextureTarget.Texture2d, _handle);
 			GLUtility.CheckError();
 		}
 
@@ -71,7 +71,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.StringDra
 			fixed (byte* ptr = data)
 			{
 				GL.TexSubImage2D(
-					target: TextureTarget.Texture2D,
+					target: TextureTarget.Texture2d,
 					level: 0,
 					xoffset: bounds.Left,
 					yoffset: bounds.Top,

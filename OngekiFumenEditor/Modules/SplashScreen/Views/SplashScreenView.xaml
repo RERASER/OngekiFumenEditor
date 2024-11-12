@@ -16,7 +16,7 @@
     Width="1000"
     Height="700"
     BorderThickness="0"
-    GlowBrush="Black"
+    BorderBrush="Black"
     d:DataContext="{d:DesignInstance Type=vm:SplashScreenViewModel}"
     Background="{StaticResource EnvironmentWindowBackground}"
     ResizeMode="NoResize"

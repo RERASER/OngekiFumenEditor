@@ -22,7 +22,7 @@ namespace OngekiFumenEditor.Kernel.Graphics.Drawing.DefaultDrawingImpl.StringDra
 			Bind();
 
 			var elementSizeInBytes = Marshal.SizeOf<T>();
-			GL.BufferData(bufferType, size * elementSizeInBytes, IntPtr.Zero, isDynamic ? BufferUsageHint.StreamDraw : BufferUsageHint.StaticDraw);
+			GL.BufferData(bufferType, size * elementSizeInBytes, IntPtr.Zero, isDynamic ? BufferUsage.StreamDraw : BufferUsage.StaticDraw);
 			GLUtility.CheckError();
 		}
 
