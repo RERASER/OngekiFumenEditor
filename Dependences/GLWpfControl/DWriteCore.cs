@@ -15,22 +15,20 @@ namespace OpenTK.Wpf
 
 		private static DComp CurrentDComp;
 
-		private static Dictionary<DComp, Queue<Action<Vortice.Direct2D1.ID2D1RenderTarget, float>>> DcompDWriteCommandQueue = new();
-
-		//private static Dictionary<Vortice.DirectWrite.IDWriteTextFormat> formats;
+		private static Dictionary<DComp, List<Action<Vortice.Direct2D1.ID2D1RenderTarget, float>>> DcompDWriteCommands = new();
 
 		public static void SetCurrent(DComp DComp)
 		{
 			CurrentDComp = DComp;
-			if (!DcompDWriteCommandQueue.ContainsKey(DComp))
+			if (!DcompDWriteCommands.ContainsKey(DComp))
 			{
-				DcompDWriteCommandQueue.Add(DComp, new());
+				DcompDWriteCommands.Add(DComp, new());
 			}
 		}
 
-		public static Queue<Action<Vortice.Direct2D1.ID2D1RenderTarget, float>> GetCommands(DComp DComp)
+		public static List<Action<Vortice.Direct2D1.ID2D1RenderTarget, float>> GetCommands(DComp DComp)
 		{
-			return DcompDWriteCommandQueue[DComp];
+			return DcompDWriteCommands[DComp];
 		}
 
 		public enum StringStyle
@@ -49,7 +47,7 @@ namespace OpenTK.Wpf
 			{
 				return;
 			}
-			DcompDWriteCommandQueue[CurrentDComp].Enqueue((rt, height) =>
+			DcompDWriteCommands[CurrentDComp].Add((rt, height) =>
 			{
 				var format = _DWriteFactory.CreateTextFormat("Cascadia Mono", fontWeight, fontStyle, fontSize);
 				var layout = _DWriteFactory.CreateTextLayout(text, format, float.PositiveInfinity, float.PositiveInfinity);
@@ -70,12 +68,12 @@ namespace OpenTK.Wpf
 			var style = (StringStyle)StringStyle;
 			Vortice.DirectWrite.FontStyle fontStyle = style.HasFlag(DWriteCore.StringStyle.Italic) ? Vortice.DirectWrite.FontStyle.Italic : Vortice.DirectWrite.FontStyle.Normal;
 			Vortice.DirectWrite.FontWeight fontWeight = style.HasFlag(DWriteCore.StringStyle.Bold) ? Vortice.DirectWrite.FontWeight.Bold : Vortice.DirectWrite.FontWeight.Normal;
-			DcompDWriteCommandQueue[CurrentDComp].Enqueue((rt, height) =>
+			DcompDWriteCommands[CurrentDComp].Add((rt, height) =>
 			{
 				var format = _DWriteFactory.CreateTextFormat("Cascadia Mono", fontWeight, fontStyle, fontSize);
 				var layout = _DWriteFactory.CreateTextLayout(text, format, float.PositiveInfinity, float.PositiveInfinity);
 				var brush = rt.CreateSolidColorBrush(new Vortice.Mathematics.Color4(color));
-				rt.DrawTextLayout(new(pos.X - origin.X * layout.Metrics.WidthIncludingTrailingWhitespace + +target.MinX, height - (pos.Y + origin.Y * layout.Metrics.Height) + target.MinY), layout, brush);
+				rt.DrawTextLayout(new(pos.X - origin.X * layout.Metrics.WidthIncludingTrailingWhitespace + target.MinX, height - (pos.Y + origin.Y * layout.Metrics.Height) + target.MinY), layout, brush);
 				brush.Dispose();
 				layout.Dispose();
 				format.Dispose();

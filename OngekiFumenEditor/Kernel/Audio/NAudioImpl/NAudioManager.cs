@@ -75,7 +75,8 @@ namespace OngekiFumenEditor.Kernel.Audio.NAudioImpl
                 audioOutputDevice = audioOutputType switch
                 {
                     AudioOutputType.Asio => new AsioOut() { AutoStop = false },
-                    AudioOutputType.Wasapi => new WasapiOut(AudioClientShareMode.Shared, 0),
+                    AudioOutputType.Wasapi => new WasapiOut(AudioClientShareMode.Shared, false, 16),
+                    AudioOutputType.DirectSound => new DirectSoundOut(16),
                     AudioOutputType.WaveOut or _ => new WaveOut() { DesiredLatency = 100 },
                 };
             }

@@ -77,11 +77,6 @@ namespace OpenTK.Wpf
 			hostHeight = PixelHeight;
 		}
 
-		//public void SetWindow(IntPtr hWnd)
-		//{
-		//	hwndHost = hWnd;
-		//}
-
 		public Vortice.Direct3D11.ID3D11Device GetD3D11Device()
 		{
 			return _device;
@@ -121,14 +116,12 @@ namespace OpenTK.Wpf
 			_deviceContext2D = _device2D.CreateDeviceContext(Vortice.Direct2D1.DeviceContextOptions.EnableMultithreadedOptimizations);
 			var hr2 = Vortice.DirectComposition.DComp.DCompositionCreateDevice2(_device2D, out _DcompDevice);
 			var hr4 = _DcompDevice.CreateVisual(out _DcompVisual);
-			_DXGISwapChain1 = _DXGIFactory2.CreateSwapChainForComposition(_device, new(1, 1, Vortice.DXGI.Format.R8G8B8A8_UNorm, swapEffect: Vortice.DXGI.SwapEffect.FlipDiscard, alphaMode: Vortice.DXGI.AlphaMode.Premultiplied, flags: Vortice.DXGI.SwapChainFlags.AllowTearing));
-			_DXGISwapChain1.BackgroundColor = new(16f / 256f, 16f / 256f, 16f / 256f, 1f);
+			_DXGISwapChain1 = _DXGIFactory2.CreateSwapChainForComposition(_device, new(1, 1, Vortice.DXGI.Format.R8G8B8A8_UNorm, swapEffect: Vortice.DXGI.SwapEffect.FlipDiscard, alphaMode: Vortice.DXGI.AlphaMode.Premultiplied, flags: Vortice.DXGI.SwapChainFlags.AllowTearing,bufferCount:3));
 			_DcompVisual.SetContent(_DXGISwapChain1);
 			_DcompVisual.SetOffsetX(0);
 			_DcompVisual.SetOffsetY(0);
 			var hr3 = _DcompDevice.CreateTargetForHwnd(hwndHost, true, out _DcompTarget);
 			_DcompTarget.SetRoot(_DcompVisual);
-
 		}
 
 		public void CreateRenderResources()
@@ -188,15 +181,17 @@ namespace OpenTK.Wpf
 		public void Draw()
 		{
 			_D2D1RenderTarget.BeginDraw();
+			_D2D1RenderTarget.Clear(new Vortice.Mathematics.Color(0x10, 0x10, 0x10, 0xFF));
 			_D2D1RenderTarget.Transform = System.Numerics.Matrix3x2.CreateScale(1, -1, new(0f, (float)(hostHeight / 2f / currentDpi.DpiScaleY)));
 			_D2D1RenderTarget.DrawBitmap(_t2dBitmap);
 			_D2D1RenderTarget.Transform = System.Numerics.Matrix3x2.Identity;
 			var queue = DWriteCore.GetCommands(this);
 			float height = (float)(hostHeight / currentDpi.DpiScaleY);
-			foreach (var item in queue)
+			Parallel.ForEach(queue, item => 
 			{
 				item.Invoke(_D2D1RenderTarget, height);
-			}
+
+			});
 			queue.Clear();
 			_D2D1RenderTarget.EndDraw();
 			_DXGISwapChain1.Present(0, Vortice.DXGI.PresentFlags.AllowTearing);

@@ -255,8 +255,8 @@ public class AppBootstrapper : Gemini.AppBootstrapper
 
     private void InitIPCServer()
     {
-        //if (ProgramSetting.Default.EnableMultiInstances)
-        //    return;
+        if (ProgramSetting.Default.EnableMultiInstances)
+            return;
         ipcThread = new AbortableThread(async cancelToken =>
         {
             while (!cancelToken.IsCancellationRequested)
@@ -275,7 +275,7 @@ public class AppBootstrapper : Gemini.AppBootstrapper
 
                 try
                 {
-                    var line = (await IPCHelper.ReadLineAsync(cancelToken))?.Trim();
+					var line = (await IPCHelper.ReadLineAsync(cancelToken))?.Trim();
                     if (string.IsNullOrWhiteSpace(line))
                         continue;
                     Log.LogDebug($"Recv line by IPC:{line}");

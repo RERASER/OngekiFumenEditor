@@ -69,7 +69,7 @@ namespace OngekiFumenEditor.Utils
         public static async Task<string> ReadLineAsync(CancellationToken cancellation)
         {
             if (enableMultiProc)
-                return string.Empty;
+                await Task.Delay(-1, cancellation);
 			using var accessor = mmf.CreateViewAccessor(0, FileSize);
 
             while (!cancellation.IsCancellationRequested)

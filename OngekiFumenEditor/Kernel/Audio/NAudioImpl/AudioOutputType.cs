@@ -10,6 +10,7 @@ namespace OngekiFumenEditor.Kernel.Audio.NAudioImpl
 	{
 		WaveOut,
 		Wasapi,
-		Asio
+		Asio,
+		DirectSound
 	}
 }

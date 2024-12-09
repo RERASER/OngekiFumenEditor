@@ -1,25 +1,11 @@
 ﻿using OpenTK.Wpf.Interop;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Vortice.Direct2D1.Effects;
-using Vortice.Mathematics;
 
 namespace OpenTK.Wpf
 {
@@ -121,7 +107,7 @@ namespace OpenTK.Wpf
 				if (hwndHost != IntPtr.Zero)
 				{
 					Dispatcher.Invoke(() =>
-					{
+					{	
 						GLCore.OnRender(DesignMode, hostWidthWithDPI, hostHeightWithDPI);
 					});
 					GLCore.RenderD3D();
@@ -158,7 +144,7 @@ namespace OpenTK.Wpf
 													  IntPtr hwndParent,
 													  IntPtr hMenu,
 													  IntPtr hInst,
-													  [MarshalAs(UnmanagedType.AsAny)] object pvParam);
+													  IntPtr pvParam);
 
 		[DllImport("user32.dll", CharSet = CharSet.Unicode)]
 		private static extern bool DestroyWindow(IntPtr hwnd);
@@ -222,8 +208,8 @@ namespace OpenTK.Wpf
 			switch (msg)
 			{
 				case 0x0005:
-					var width = LOWORD((uint)lParam);
-					var height = HIWORD((uint)lParam);
+					//var width = LOWORD((uint)lParam);
+					//var height = HIWORD((uint)lParam);
 					handled = true;
 					return 0;
 				case 0x000F:
