@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -257,14 +258,14 @@ public class AppBootstrapper : Gemini.AppBootstrapper
     {
         if (ProgramSetting.Default.EnableMultiInstances)
             return;
-        ipcThread = new AbortableThread(async cancelToken =>
+        ipcThread = new(cancelToken =>
         {
             while (!cancelToken.IsCancellationRequested)
             {
                 if (!IPCHelper.IsSelfHost())
                 {
                     //如果自己不是host那就检查另一个host死了没,来个随机sleep那样的话可以避免多个实例撞车
-                    await Task.Delay(MathUtils.Random(0, 1000), cancelToken);
+                    Thread.Sleep(MathUtils.Random(0, 1000));
                     if (!IPCHelper.IsHostAlive())
                     {
                         //似了就继承大业
@@ -275,14 +276,14 @@ public class AppBootstrapper : Gemini.AppBootstrapper
 
                 try
                 {
-					var line = (await IPCHelper.ReadLineAsync(cancelToken))?.Trim();
+					var line = (IPCHelper.ReadLine(cancelToken))?.Trim();
                     if (string.IsNullOrWhiteSpace(line))
                         continue;
                     Log.LogDebug($"Recv line by IPC:{line}");
                     if (line.StartsWith("CMD:"))
                     {
                         var args = JsonSerializer.Deserialize<IPCHelper.ArgsWrapper>(line[4..]).Args;
-                        await Application.Current.Dispatcher.InvokeAsync(() =>
+                        Application.Current.Dispatcher.Invoke(() =>
                             IoC.Get<IProgramArgProcessManager>().ProcessArgs(args));
                     }
                 }
@@ -290,6 +291,7 @@ public class AppBootstrapper : Gemini.AppBootstrapper
                 {
                     Log.LogWarn($"Recv line by IPC throw exception:{e.Message}");
                 }
+                Thread.Sleep(1000);
             }
         })
         {

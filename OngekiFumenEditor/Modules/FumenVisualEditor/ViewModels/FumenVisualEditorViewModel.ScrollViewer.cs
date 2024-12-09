@@ -72,15 +72,15 @@ namespace OngekiFumenEditor.Modules.FumenVisualEditor.ViewModels
 			ScrollTo(timelineObject.TGrid);
 		}
 
-		public void ScrollTo(TGrid startTGrid)
+		public void ScrollTo(TGrid startTGrid, bool notify = true)
 		{
 			if (startTGrid is null)
 				return;
 			var audioTime = TGridCalculator.ConvertTGridToAudioTime(startTGrid, this);
-			ScrollTo(audioTime);
+			ScrollTo(audioTime,notify);
 		}
 
-		public void ScrollTo(TimeSpan audioTime)
+		public void ScrollTo(TimeSpan audioTime, bool notify = true)
 		{
 			var fixedAudioTime = MathUtils.Max(TimeSpan.Zero, MathUtils.Min(audioTime, EditorProjectData.AudioDuration));
 			CurrentPlayTime = fixedAudioTime;
@@ -91,7 +91,10 @@ namespace OngekiFumenEditor.Modules.FumenVisualEditor.ViewModels
 			val = Math.Min(TotalDurationHeight, Math.Max(0, val));
 
 			scrollViewerVerticalOffset = val;
-			NotifyOfPropertyChange(() => ReverseScrollViewerVerticalOffset);
+			if (notify)
+			{
+				NotifyOfPropertyChange(() => ReverseScrollViewerVerticalOffset);
+			}
 			RecalcViewProjectionMatrix();
 		}
 

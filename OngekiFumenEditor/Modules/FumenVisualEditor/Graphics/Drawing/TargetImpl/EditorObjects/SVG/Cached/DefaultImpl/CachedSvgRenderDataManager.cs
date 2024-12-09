@@ -48,12 +48,16 @@ namespace OngekiFumenEditor.Modules.FumenVisualEditor.Graphics.Drawing.TargetImp
 			IoC.Get<ISchedulerManager>().AddScheduler(this);
 		}
 
-		public Task OnScheduleCall(CancellationToken cancellationToken)
+		public async Task OnScheduleCall(CancellationToken cancellationToken)
 		{
-			var curTime = DateTime.Now;
-			foreach (var removeItem in cachedDataMap.Where(x => x.Value.LastAccessTime - curTime > TimeSpan.FromMinutes(10)).ToArray())
-				cachedDataMap.Remove(removeItem.Key);
-			return Task.CompletedTask;
+			var curTime = DateTime.UtcNow;
+			await Task.Run(() =>
+			{
+				foreach (var removeItem in cachedDataMap.Where(x => x.Value.LastAccessTime - curTime > TimeSpan.FromMinutes(10)))
+				{
+					cachedDataMap.Remove(removeItem.Key);
+				}
+			}, cancellationToken);
 		}
 
 		private bool CheckCachedDataVailed(IDrawingContext target, CachedSvgGeneratedData data)
@@ -103,7 +107,7 @@ namespace OngekiFumenEditor.Modules.FumenVisualEditor.Graphics.Drawing.TargetImp
 
 		public List<LineVertex> GetRenderData(IDrawingContext target, SvgPrefabBase svgPrefab, out bool isCached, out Rect bound)
 		{
-			var curTime = DateTime.Now;
+			var curTime = DateTime.UtcNow;
 			isCached = true;
 
 			if (!cachedDataMap.TryGetValue(svgPrefab, out var cachedItem))

@@ -1642,7 +1642,7 @@ namespace OngekiFumenEditor.Modules.FumenVisualEditor.ViewModels
             if (AudioPlayer != null && AudioPlayer.IsPlaying)
             {
 				var tGrid = TGridCalculator.ConvertAudioTimeToTGrid(AudioPlayer.CurrentTime, Editor);
-				ScrollTo(tGrid);
+				ScrollTo(tGrid,false);
 			}
             if (IsPreviewMode)
             {

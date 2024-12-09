@@ -116,10 +116,11 @@ namespace OpenTK.Wpf
 			_deviceContext2D = _device2D.CreateDeviceContext(Vortice.Direct2D1.DeviceContextOptions.EnableMultithreadedOptimizations);
 			var hr2 = Vortice.DirectComposition.DComp.DCompositionCreateDevice2(_device2D, out _DcompDevice);
 			var hr4 = _DcompDevice.CreateVisual(out _DcompVisual);
-			_DXGISwapChain1 = _DXGIFactory2.CreateSwapChainForComposition(_device, new(1, 1, Vortice.DXGI.Format.R8G8B8A8_UNorm, swapEffect: Vortice.DXGI.SwapEffect.FlipDiscard, alphaMode: Vortice.DXGI.AlphaMode.Premultiplied, flags: Vortice.DXGI.SwapChainFlags.AllowTearing,bufferCount:3));
+			_DXGISwapChain1 = _DXGIFactory2.CreateSwapChainForComposition(_device, new(1, 1, Vortice.DXGI.Format.R8G8B8A8_UNorm, swapEffect: Vortice.DXGI.SwapEffect.FlipDiscard, alphaMode: Vortice.DXGI.AlphaMode.Premultiplied, flags: Vortice.DXGI.SwapChainFlags.AllowTearing,bufferCount:2));
 			_DcompVisual.SetContent(_DXGISwapChain1);
 			_DcompVisual.SetOffsetX(0);
 			_DcompVisual.SetOffsetY(0);
+			_DcompVisual.SetBitmapInterpolationMode(Vortice.DirectComposition.BitmapInterpolationMode.NearestNeighbor);
 			var hr3 = _DcompDevice.CreateTargetForHwnd(hwndHost, true, out _DcompTarget);
 			_DcompTarget.SetRoot(_DcompVisual);
 		}
@@ -187,11 +188,10 @@ namespace OpenTK.Wpf
 			_D2D1RenderTarget.Transform = System.Numerics.Matrix3x2.Identity;
 			var queue = DWriteCore.GetCommands(this);
 			float height = (float)(hostHeight / currentDpi.DpiScaleY);
-			Parallel.ForEach(queue, item => 
+			foreach (var item in queue)
 			{
 				item.Invoke(_D2D1RenderTarget, height);
-
-			});
+			}
 			queue.Clear();
 			_D2D1RenderTarget.EndDraw();
 			_DXGISwapChain1.Present(0, Vortice.DXGI.PresentFlags.AllowTearing);

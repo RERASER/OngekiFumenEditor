@@ -3,9 +3,11 @@ using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
+using System.Windows.Threading;
 
 namespace OpenTK.Wpf
 {
@@ -106,6 +108,11 @@ namespace OpenTK.Wpf
 			{
 				if (hwndHost != IntPtr.Zero)
 				{
+					if (CheckDispatcherHang(Dispatcher))
+					{
+						Thread.Sleep(1000 / 120);
+						continue;
+					}
 					Dispatcher.Invoke(() =>
 					{	
 						GLCore.OnRender(DesignMode, hostWidthWithDPI, hostHeightWithDPI);
@@ -124,6 +131,18 @@ namespace OpenTK.Wpf
 				GLCore?.Dispose();
 				DestroyWindow(hwndHost);
 			});
+		}
+
+		private static bool CheckDispatcherHang(Dispatcher dispatcher)
+		{
+			var mainThreadTask = dispatcher.InvokeAsync(() => { });
+			Task.WaitAny(mainThreadTask.Task, Task.Delay(TimeSpan.FromMilliseconds(2000)));
+			if (mainThreadTask.Status == DispatcherOperationStatus.Completed)
+			{
+				return false;
+			}
+			mainThreadTask.Abort();
+			return true;
 		}
 
 		public void Start(GLWpfControlSettings settings)

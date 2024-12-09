@@ -4,6 +4,7 @@ using OngekiFumenEditor.Base;
 using OngekiFumenEditor.Base.OngekiObjects;
 using OngekiFumenEditor.Base.OngekiObjects.Beam;
 using OngekiFumenEditor.Kernel.Audio.NAudioImpl.Sound;
+using OngekiFumenEditor.Kernel.Scheduler;
 using OngekiFumenEditor.Modules.FumenVisualEditor;
 using OngekiFumenEditor.Modules.FumenVisualEditor.ViewModels;
 using OngekiFumenEditor.Properties;
@@ -22,7 +23,7 @@ using System.Windows;
 namespace OngekiFumenEditor.Kernel.Audio.DefaultCommonImpl.Sound
 {
 	[Export(typeof(IFumenSoundPlayer))]
-	public partial class DefaultFumenSoundPlayer : PropertyChangedBase, IFumenSoundPlayer, IDisposable
+	public partial class DefaultFumenSoundPlayer : PropertyChangedBase, IFumenSoundPlayer, IDisposable, ISchedulable
 	{
 		private record MeterAction(TimeSpan Time, TimeSpan BeatInterval, int BeatCount, bool isSkip);
 
@@ -36,8 +37,6 @@ namespace OngekiFumenEditor.Kernel.Audio.DefaultCommonImpl.Sound
 		private LinkedList<MeterAction> meterActions = new();
 		private LinkedListNode<MeterAction> meterActionsItor;
 		private int currentMeterHitCount = 0;
-
-		private AbortableThread thread;
 
 		private IAudioPlayer player;
 		private FumenVisualEditorViewModel editor;
@@ -57,6 +56,10 @@ namespace OngekiFumenEditor.Kernel.Audio.DefaultCommonImpl.Sound
 				Set(ref volume, value);
 			}
 		}
+
+		public string SchedulerName => "DefaultFumenPlayer Playing Updater";
+
+		public TimeSpan ScheduleCallLoopInterval => TimeSpan.FromMilliseconds(1000.0 / 60);
 
 		private Dictionary<SoundControl, ISoundPlayer> cacheSounds = new();
 		private Task<bool> loadTask;
@@ -133,21 +136,12 @@ namespace OngekiFumenEditor.Kernel.Audio.DefaultCommonImpl.Sound
 		{
 			await loadTask;
 
-			if (thread is not null)
-			{
-				thread.Abort();
-				thread = null;
-			}
-
 			this.player = player;
 			this.editor = editor;
 
 			RebuildEvents();
 			stopwatch.Restart();
-			thread = new AbortableThread(OnUpdate);
-			thread.Name = $"DefaultFumenSoundPlayer_Thread";
-			UpdateInternal(thread.CancellationToken);
-			thread.Start();
+			UpdateInternal(default);
 		}
 
 		private static IEnumerable<TGrid> CalculateHoldTicks(Hold x, OngekiFumen fumen)
@@ -440,23 +434,6 @@ namespace OngekiFumenEditor.Kernel.Audio.DefaultCommonImpl.Sound
             }*/
 		}
 
-		private void OnUpdate(CancellationToken cancel)
-		{
-			while (!cancel.IsCancellationRequested)
-			{
-				if (stopwatch.ElapsedMilliseconds >= 16)
-				{
-					UpdateInternal(cancel);
-					stopwatch.Restart();
-				}
-				else
-				{
-					Thread.Sleep(4);
-				}
-
-			}
-		}
-
 		private void PlaySoundsOnce(SoundControl sounds)
 		{
 			void checkPlay(SoundControl subFlag)
@@ -482,9 +459,9 @@ namespace OngekiFumenEditor.Kernel.Audio.DefaultCommonImpl.Sound
 			checkPlay(SoundControl.MetronomeWeakBeat);
 		}
 
-		public void Seek(TimeSpan msec, bool pause)
+		public async void Seek(TimeSpan msec, bool pause)
 		{
-			Pause();
+			await PauseCore();
 			itor = events.Find(events.FirstOrDefault(x => msec < x.Time));
 			meterActionsItor = meterActions.Find(meterActions.LastOrDefault(x => msec >= x.Time));
 			if (meterActionsItor is null)
@@ -498,7 +475,7 @@ namespace OngekiFumenEditor.Kernel.Audio.DefaultCommonImpl.Sound
 			}
 
 			if (!pause)
-				PlayInternal();
+				await PlayInternal();
 		}
 
 		private void StopAllLoop()
@@ -520,38 +497,49 @@ namespace OngekiFumenEditor.Kernel.Audio.DefaultCommonImpl.Sound
 
 		public void Stop()
 		{
-			thread?.Abort();
+			IoC.Get<ISchedulerManager>().RemoveScheduler(this);
 			StopAllLoop();
 			isPlaying = false;
 		}
 
-		public void PlayInternal()
+		public async Task PlayInternal()
 		{
 			if (player is null)
 				return;
 			isPlaying = true;
+			await IoC.Get<ISchedulerManager>().AddScheduler(this);
 		}
 
 		public void Play()
+		{
+			PlayCore();
+		}
+
+		public async Task PlayCore()
 		{
 			if (player is null)
 				return;
 			itor = itor ?? events.First;
 			meterActionsItor = meterActionsItor ?? meterActions.First;
 			currentMeterHitCount = 0;
-
-			PlayInternal();
+			await PlayInternal();
 		}
 
 		public void Pause()
 		{
+			PauseCore();
+		}
+
+		public async Task PauseCore()
+		{
 			isPlaying = false;
 			StopAllLoop();
+			await IoC.Get<ISchedulerManager>().RemoveScheduler(this);
 		}
 
 		public void Dispose()
 		{
-			thread?.Abort();
+			IoC.Get<ISchedulerManager>().RemoveScheduler(this);
 			foreach (var sound in cacheSounds.Values)
 				sound.Dispose();
 		}
@@ -559,8 +547,6 @@ namespace OngekiFumenEditor.Kernel.Audio.DefaultCommonImpl.Sound
 		public Task Clean()
 		{
 			Stop();
-
-			thread = null;
 
 			player = null;
 			editor = null;
@@ -598,6 +584,16 @@ namespace OngekiFumenEditor.Kernel.Audio.DefaultCommonImpl.Sound
 		{
 			InitSounds();
 			return await loadTask;
+		}
+
+		public void OnSchedulerTerm()
+		{
+		}
+
+		public Task OnScheduleCall(CancellationToken cancellationToken)
+		{
+			UpdateInternal(cancellationToken);
+			return Task.CompletedTask;
 		}
 	}
 }

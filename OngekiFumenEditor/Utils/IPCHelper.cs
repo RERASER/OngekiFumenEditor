@@ -66,15 +66,14 @@ namespace OngekiFumenEditor.Utils
             accessor.Write(0, Environment.ProcessId);
         }
 
-        public static async Task<string> ReadLineAsync(CancellationToken cancellation)
+        public static string ReadLine(CancellationToken cancellation)
         {
             if (enableMultiProc)
-                await Task.Delay(-1, cancellation);
+                Thread.Sleep(Timeout.Infinite);
 			using var accessor = mmf.CreateViewAccessor(0, FileSize);
-
             while (!cancellation.IsCancellationRequested)
             {
-                if (waitHandle.WaitOne(1000))
+                if (waitHandle.WaitOne(10000))
                 {
 					var size = accessor.ReadInt32(sizeof(int));
 					if (size > 0)
@@ -85,7 +84,6 @@ namespace OngekiFumenEditor.Utils
 						return Encoding.UTF8.GetString(bytes);
 					}
 				};
-                await Task.Yield();
             }
             return string.Empty;
         }

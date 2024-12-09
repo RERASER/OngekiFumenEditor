@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace OngekiFumenEditor.Kernel.Audio.DefaultImp.Music
 {
-    internal class DefaultMusicPlayer : PropertyChangedBase, IAudioPlayer, ISchedulable
+	internal class DefaultMusicPlayer : PropertyChangedBase, IAudioPlayer, ISchedulable
 	{
 		private FinishedListenerProvider finishProvider;
 
@@ -55,9 +55,9 @@ namespace OngekiFumenEditor.Kernel.Audio.DefaultImp.Music
 			}
 		}
 
-		public string SchedulerName => $"DefaultMusicPlayer Playing Updater";
+		public string SchedulerName => "DefaultMusicPlayer Playing Updater";
 
-		public TimeSpan ScheduleCallLoopInterval => TimeSpan.FromMilliseconds(1000.0 / 60);
+		public TimeSpan ScheduleCallLoopInterval => TimeSpan.FromMilliseconds(1000.0 / 20);
 
 		public bool IsAvaliable
 		{
@@ -205,20 +205,18 @@ namespace OngekiFumenEditor.Kernel.Audio.DefaultImp.Music
 		{
 			if (!IsAvaliable)
 				return Task.FromResult<SampleData>(default);
-
 			var subBuffer = samples.AsMemory();
-			var sampleData = new SampleData(subBuffer, ConvertToSampleInfo(audioFileReader.WaveFormat));
-
-			return Task.FromResult(sampleData);
+			return Task.FromResult(new SampleData(subBuffer, ConvertToSampleInfo(audioFileReader.WaveFormat)));
 		}
 
 		public static SampleInfo ConvertToSampleInfo(WaveFormat waveFormat)
 		{
-			var sampleInfo = new SampleInfo();
-
-			sampleInfo.SampleRate = waveFormat.SampleRate;
-			sampleInfo.Channels = waveFormat.Channels;
-			sampleInfo.BitsPerSample = waveFormat.BitsPerSample;
+			var sampleInfo = new SampleInfo
+			{
+				SampleRate = waveFormat.SampleRate,
+				Channels = waveFormat.Channels,
+				BitsPerSample = waveFormat.BitsPerSample
+			};
 
 			return sampleInfo;
 		}
