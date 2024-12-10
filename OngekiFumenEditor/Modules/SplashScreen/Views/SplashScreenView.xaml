@@ -18,7 +18,7 @@
     BorderThickness="0"
     BorderBrush="Black"
     d:DataContext="{d:DesignInstance Type=vm:SplashScreenViewModel}"
-    Background="{StaticResource EnvironmentWindowBackground}"
+    Background="{DynamicResource EnvironmentWindowBackground}"
     ResizeMode="NoResize"
     SaveWindowPosition="True"
     mc:Ignorable="d">

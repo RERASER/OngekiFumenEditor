@@ -72,6 +72,7 @@ namespace OpenTK.Wpf
 			Loaded += DCompGL_Loaded;
 			GLCore = new();
 			LoopThread = new(EntryPoint);
+			LoopThread.IsBackground = true;
 			LoopThread.Start();
 		}
 
